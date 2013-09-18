@@ -35,15 +35,17 @@ class Chef
           raise "rbenv not installed. Can't run rbenv_command"
         end
 
+        env = { 'RBENV_ROOT' => rbenv_root_path }
+        env['MAKE_OPTS'] = "-j #{node[:cpu][:total]}" if cmd =~ /^install/
+
         default_options = {
           :user => node[:rbenv][:user],
           :group => node[:rbenv][:group],
           :cwd => rbenv_root_path,
-          :env => {
-            'RBENV_ROOT' => rbenv_root_path
-          },
+          :env => env,
           :timeout => 3600
         }
+
         shell_out("#{rbenv_bin_path}/rbenv #{cmd}", Chef::Mixin::DeepMerge.deep_merge!(options, default_options))
       end
 
